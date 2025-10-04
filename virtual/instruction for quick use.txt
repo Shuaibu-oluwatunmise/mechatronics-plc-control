@@ -1,0 +1,5 @@
+run:
+cd C:\Users\shuai\leap_motion_control\MECHATRONICS\Virtual
+
+then run:
+.\launcher.bat

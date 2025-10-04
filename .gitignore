@@ -1,0 +1,29 @@
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.Python
+*.so
+
+# Virtual environment (don't push leap_env)
+leap_env/
+venv/
+env/
+
+# C# build files
+bin/
+obj/
+*.user
+*.suo
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Test files
+folder_structure.txt
+
+# TIA Portal temp files
+*/TMP/
+*/Logs/

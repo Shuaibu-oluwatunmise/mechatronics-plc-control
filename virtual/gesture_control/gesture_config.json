@@ -1,0 +1,15 @@
+{
+  "gesture_sets": {
+    "primary": {
+      "byte": 0,
+      "gestures": {
+        "swipe_left": 0,
+        "swipe_right": 1,
+        "swipe_up": 2,
+        "swipe_down": 3,
+        "circle": 4
+      }
+    }
+  },
+  "active_set": "primary"
+}
