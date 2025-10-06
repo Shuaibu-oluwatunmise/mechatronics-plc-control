@@ -2,4 +2,4 @@ leap_env\Scripts\activate
 
 cd C:\Users\shuai\leap_motion_control\MECHATRONICS\physical\gesture_control
 
-python gesture_detector.python
+python gesture_detector.py

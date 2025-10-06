@@ -1,11 +1,12 @@
 import snap7
 from snap7.util import *
+from snap7.types import Areas
 import time
 import json
 import os
 
 class PLCCommunicator:
-    def __init__(self, ip='192.168.0.1', rack=0, slot=1, config_file='gesture_config.json'):
+    def __init__(self, ip='192.168.2.23', rack=0, slot=1, config_file='gesture_config.json'):
         """
         Initialize physical PLC communicator using snap7
         
@@ -53,13 +54,12 @@ class PLCCommunicator:
             self.client = snap7.client.Client()
             self.client.connect(self.ip, self.rack, self.slot)
             
-            # Verify connection
-            cpu_info = self.client.get_cpu_info()
-            print(f"[SUCCESS] Connected to PLC")
-            print(f"[INFO] CPU: {cpu_info.ModuleTypeName.decode('utf-8')}")
-            print(f"[INFO] Serial: {cpu_info.SerialNumber.decode('utf-8')}")
-            
-            return True
+            if self.client.get_connected():
+                print(f"[SUCCESS] Connected to PLC at {self.ip}")
+                return True
+            else:
+                print(f"[ERROR] Connection failed (not connected)")
+                return False
         except Exception as e:
             print(f"[ERROR] Connection failed: {e}")
             return False
@@ -67,7 +67,7 @@ class PLCCommunicator:
     def disconnect(self):
         """Disconnect from PLC"""
         try:
-            if self.client:
+            if self.client and self.client.get_connected():
                 self.client.disconnect()
                 print("[DISCONNECT] Disconnected from PLC")
         except Exception as e:
@@ -88,8 +88,8 @@ class PLCCommunicator:
         area, byte_offset, bit_offset = self.gesture_addresses[gesture_name]
         
         try:
-            # Read current byte value
-            data = self.client.read_area(snap7.types.Areas.MK, 0, byte_offset, 1)
+            # Read current memory byte
+            data = self.client.read_area(Areas.MK, 0, byte_offset, 1)
             current_value = data[0]
             
             # Modify the specific bit
@@ -98,9 +98,9 @@ class PLCCommunicator:
             else:
                 new_value = current_value & ~(1 << bit_offset)
             
-            # Write back
+            # Write back to PLC
             data[0] = new_value
-            self.client.write_area(snap7.types.Areas.MK, 0, byte_offset, data)
+            self.client.write_area(Areas.MK, 0, byte_offset, data)
             
             return True
             
@@ -125,7 +125,7 @@ class PLCCommunicator:
         area, byte_offset, bit_offset = self.gesture_addresses[gesture_name]
         
         try:
-            data = self.client.read_area(snap7.types.Areas.MK, 0, byte_offset, 1)
+            data = self.client.read_area(Areas.MK, 0, byte_offset, 1)
             bit_value = bool(data[0] & (1 << bit_offset))
             return bit_value
             
@@ -136,7 +136,7 @@ class PLCCommunicator:
     def read_all_gestures(self):
         """Read all gesture states at once"""
         try:
-            data = self.client.read_area(snap7.types.Areas.MK, 0, self.byte_offset, 1)
+            data = self.client.read_area(Areas.MK, 0, self.byte_offset, 1)
             byte_value = data[0]
             
             states = {}
@@ -150,20 +150,11 @@ class PLCCommunicator:
             return None
     
     def get_connection_state(self):
-        """Check if PLC is connected and running"""
+        """Check if PLC is still connected"""
         try:
-            state = self.client.get_cpu_state()
-            state_text = {
-                0: "UNKNOWN",
-                4: "STOP",
-                8: "RUN"
-            }.get(state, f"UNKNOWN({state})")
-            
-            return state_text
-            
-        except Exception as e:
-            print(f"[ERROR] Cannot get PLC state: {e}")
-            return None
+            return "CONNECTED" if self.client and self.client.get_connected() else "DISCONNECTED"
+        except Exception:
+            return "DISCONNECTED"
 
 
 # Test the communicator
@@ -173,24 +164,17 @@ if __name__ == "__main__":
     print("=" * 60)
     
     # Configuration
-    PLC_IP = input("Enter PLC IP address [192.168.0.1]: ").strip() or "192.168.0.1"
+    PLC_IP = input("Enter PLC IP address [192.168.2.23]: ").strip() or "192.168.2.23"
     
-    plc = PLCCommunicator(ip=PLC_IP)
+    plc = PLCCommunicator(ip=PLC_IP, rack=0, slot=1)
     
     if plc.connect():
         print("\n[TEST] Connection successful!")
-        
-        # Check PLC state
-        state = plc.get_connection_state()
-        print(f"[TEST] PLC State: {state}")
-        
-        if state != "RUN":
-            print("[WARNING] PLC is not in RUN mode")
-            print("[WARNING] Put PLC in RUN mode for full testing")
+        print(f"[TEST] PLC State: {plc.get_connection_state()}")
         
         # Test write/read for each gesture
         print("\n[TEST] Testing gesture write/read operations:")
-        for gesture in ['swipe_left', 'swipe_right', 'swipe_up', 'swipe_down', 'circle']:
+        for gesture in plc.gesture_addresses.keys():
             print(f"\n  Testing: {gesture}")
             
             # Write ON
@@ -215,7 +199,7 @@ if __name__ == "__main__":
                 print(f"    {gesture}: {state}")
         
         plc.disconnect()
-        print("\n[TEST] All tests completed!")
+        print("\n[TEST] All tests completed successfully!")
     else:
         print("\n[ERROR] Could not connect to PLC")
         print("Check:")
