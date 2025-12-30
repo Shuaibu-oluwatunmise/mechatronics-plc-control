@@ -8,18 +8,18 @@
 > **Touchless industrial automation using hand gestures to control Siemens S7 PLCs - both virtual (PLCSIM Advanced) and physical hardware**
 
 ## 📋 Table of Contents
-- [Overview](#overview)
-- [Key Features](#key-features)
-- [System Architecture](#system-architecture)
-- [Technologies Used](#technologies-used)
-- [Quick Start](#quick-start)
-- [Project Structure](#project-structure)
-- [Performance Metrics](#performance-metrics)
-- [Use Cases](#use-cases)
-- [Documentation](#documentation)
-- [Future Extensions](#future-extensions)
-- [Contributing](#contributing)
-- [Acknowledgments](#acknowledgments)
+- [Overview](#-overview)
+- [Key Features](#-key-features)
+- [System Architecture](#-system-architecture)
+- [Technologies Used](#-technologies-used)
+- [Quick Start](#-quick-start)
+- [Project Structure](#-project-structure)
+- [Performance Metrics](#-performance-metrics)
+- [Use Cases](#-use-cases)
+- [Documentation](#-documentation)
+- [Future Extensions](#-future-extensions)
+- [Contributing](#-contributing)
+- [Acknowledgments](#-acknowledgments)
 
 ---
 
